@@ -101,9 +101,9 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
           </button>
         </div>
         <p className="mt-2 text-[11px] text-white/40">
-          Top 10 posts by impressions over the last 7 days. Results are saved
-          locally — switching tabs or refreshing won&apos;t re-spend API
-          credits.
+          Top 10 posts by impressions (last 7 days), ranked from a relevancy
+          pull. Results are cached locally — switching tabs or refreshing
+          won&apos;t re-spend API credits.
         </p>
       </div>
 

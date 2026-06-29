@@ -38,11 +38,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing X Bearer Token." }, { status: 400 });
   }
 
+  // Cost control: X bills ~$0.005 per post returned. The API cannot sort or
+  // filter by impressions (engagement operators are silently ignored), so the
+  // only lever is to pull fewer posts ranked by relevancy and keep the top 10.
+  // Tunable via X_SEARCH_MAX_RESULTS (10–100); default 25 ≈ $0.13/fetch.
+  const maxResults = Math.min(
+    100,
+    Math.max(10, parseInt(process.env.X_SEARCH_MAX_RESULTS || "25", 10) || 25)
+  );
+
   const startTime = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const params = new URLSearchParams({
     query: `$${cashtag} -is:retweet`,
     start_time: startTime,
-    max_results: "100",
+    max_results: String(maxResults),
     // relevancy surfaces the most-engaged posts; recency (default) would only
     // return the newest tweets, missing high-impression posts in the window.
     sort_order: "relevancy",

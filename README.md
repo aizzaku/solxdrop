@@ -75,14 +75,15 @@ does not allow direct browser calls (CORS). Use **Remove saved token** to wipe i
 
 ### 1. Fetch from X
 - Enter a cashtag (defaults to `ANSEM`) and click **Fetch Top Posts**.
-- Results are the top posts by **impressions over the last 7 days**.
-- Click **Mark bot** on any suspicious/botted post to exclude it (toggle **Restore** to undo).
-- Click **Add top 8 to Leaderboard** to move the kept posts over.
+- Returns the **top 10 by impressions over the last 7 days**, ranked from a `relevancy` pull (the API can't sort or filter by impressions directly, so it pulls relevancy-ranked posts and the app keeps the top 10).
+- **Cost:** X bills ~**$0.005 per post returned**. Each fetch pulls `X_SEARCH_MAX_RESULTS` posts (default 25 ≈ $0.13). Lower it to 10 (≈ $0.05) for cheaper pulls.
+- Results are **cached locally** — switching tabs or refreshing won't trigger another paid call.
+- Click **Add to Leaderboard** to move them over.
 
 ### 2. Leaderboard
 - Each row: rank, username, impressions, date, post link.
 - Paste a **wallet address** per creator (saved automatically per cashtag).
-- **Exclude** rows you don't want; excluded rows can't be selected or airdropped.
+- Use **Remove** to drop a row you don't want.
 - Use the checkboxes + **Airdrop to Selected** for bulk, or the per-row **Airdrop** button for a single recipient.
 
 ### 3. Airdrop (the core feature)
