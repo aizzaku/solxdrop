@@ -1,6 +1,8 @@
 import type { LeaderboardEntry, XPost } from "./types";
 
 const PREFIX = "ansem:leaderboard:";
+const FETCH_PREFIX = "ansem:fetch:";
+const MAX_ENTRIES = 10;
 
 function keyFor(cashtag: string): string {
   return `${PREFIX}${cashtag.toUpperCase()}`;
@@ -24,17 +26,26 @@ export function saveLeaderboard(
   localStorage.setItem(keyFor(cashtag), JSON.stringify(entries));
 }
 
-export function listCashtags(): string[] {
+/** Cache the last raw fetch so switching tabs / refreshing doesn't re-call the paid API. */
+export function loadFetchResults(cashtag: string): XPost[] {
   if (typeof localStorage === "undefined") return [];
-  const tags: string[] = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k?.startsWith(PREFIX)) tags.push(k.slice(PREFIX.length));
+  const raw = localStorage.getItem(`${FETCH_PREFIX}${cashtag.toUpperCase()}`);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as XPost[];
+  } catch {
+    return [];
   }
-  return tags;
 }
 
-/** Merge fetched posts into existing entries, dedupe by postId, keep top 8 by impressions. */
+export function saveFetchResults(cashtag: string, posts: XPost[]): void {
+  localStorage.setItem(
+    `${FETCH_PREFIX}${cashtag.toUpperCase()}`,
+    JSON.stringify(posts)
+  );
+}
+
+/** Merge fetched posts into existing entries, dedupe by postId, keep top 10 by impressions. */
 export function mergePosts(
   existing: LeaderboardEntry[],
   posts: XPost[]
@@ -52,11 +63,10 @@ export function mergePosts(
       url: p.url,
       text: p.text,
       wallet: prev?.wallet ?? "",
-      excluded: prev?.excluded ?? false,
     });
   }
 
   return Array.from(byId.values())
     .sort((a, b) => b.impressions - a.impressions)
-    .slice(0, 8);
+    .slice(0, MAX_ENTRIES);
 }

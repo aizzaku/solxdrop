@@ -3,8 +3,6 @@
 import { useState } from "react";
 import {
   PaperPlaneTilt,
-  Prohibit,
-  ArrowCounterClockwise,
   ArrowSquareOut,
   Trash,
 } from "@phosphor-icons/react";
@@ -39,8 +37,6 @@ export function LeaderboardTab({
   const { toast } = useToast();
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const active = entries.filter((e) => !e.excluded);
-
   const toggleSelect = (postId: string) =>
     setSelected((prev) => {
       const next = new Set(prev);
@@ -49,15 +45,13 @@ export function LeaderboardTab({
     });
 
   const allSelected =
-    active.length > 0 && active.every((e) => selected.has(e.postId));
+    entries.length > 0 && entries.every((e) => selected.has(e.postId));
 
   const toggleAll = () =>
-    setSelected(
-      allSelected ? new Set() : new Set(active.map((e) => e.postId))
-    );
+    setSelected(allSelected ? new Set() : new Set(entries.map((e) => e.postId)));
 
   const airdropSelected = () => {
-    const chosen = active.filter((e) => selected.has(e.postId));
+    const chosen = entries.filter((e) => selected.has(e.postId));
     if (chosen.length === 0) {
       toast("error", "Select at least one row.");
       return;
@@ -86,8 +80,8 @@ export function LeaderboardTab({
             <span className="text-neon">${cashtag}</span> Leaderboard
           </h2>
           <p className="text-xs text-white/45">
-            {active.length} active · {entries.length - active.length} excluded ·
-            stored locally
+            {entries.length} post{entries.length === 1 ? "" : "s"} · stored
+            locally
           </p>
         </div>
         <button
@@ -124,21 +118,19 @@ export function LeaderboardTab({
           <tbody>
             {entries.map((e, i) => {
               const badWallet =
-                e.wallet && !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(e.wallet.trim());
+                e.wallet &&
+                !/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(e.wallet.trim());
               return (
                 <tr
                   key={e.postId}
-                  className={`border-b border-white/5 transition ${
-                    e.excluded ? "opacity-35" : "hover:bg-white/[0.02]"
-                  }`}
+                  className="border-b border-white/5 transition hover:bg-white/[0.02]"
                 >
                   <td className="px-3 py-2">
                     <input
                       type="checkbox"
-                      disabled={e.excluded}
                       checked={selected.has(e.postId)}
                       onChange={() => toggleSelect(e.postId)}
-                      className="accent-neon disabled:opacity-30"
+                      className="accent-neon"
                     />
                   </td>
                   <td className="px-2 py-2 font-mono font-bold text-neon">
@@ -180,27 +172,9 @@ export function LeaderboardTab({
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => openAirdrop([toRecipient(e)])}
-                        disabled={e.excluded}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-neon/40 px-2.5 py-1 text-xs font-semibold text-neon transition hover:bg-neon/10 disabled:opacity-30"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-neon/40 px-2.5 py-1 text-xs font-semibold text-neon transition hover:bg-neon/10"
                       >
                         <PaperPlaneTilt size={13} weight="bold" /> Airdrop
-                      </button>
-                      <button
-                        onClick={() =>
-                          updateEntry(e.postId, { excluded: !e.excluded })
-                        }
-                        className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2 py-1 text-xs text-white/55 transition hover:border-white/40 hover:text-white"
-                      >
-                        {e.excluded ? (
-                          <>
-                            <ArrowCounterClockwise size={13} weight="bold" />{" "}
-                            Restore
-                          </>
-                        ) : (
-                          <>
-                            <Prohibit size={13} weight="bold" /> Exclude
-                          </>
-                        )}
                       </button>
                       <button
                         onClick={() => removeEntry(e.postId)}
@@ -218,8 +192,8 @@ export function LeaderboardTab({
         </table>
       </div>
       <p className="text-[11px] text-white/35">
-        Wallet addresses and exclusions are saved in your browser per cashtag.
-        Excluded rows can&apos;t be selected or airdropped.
+        Wallet addresses are saved in your browser per cashtag. Use Remove to
+        drop a row.
       </p>
     </div>
   );

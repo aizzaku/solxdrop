@@ -21,7 +21,6 @@ export interface LeaderboardEntry {
   url: string;
   text: string;
   wallet: string;
-  excluded: boolean;
 }
 
 export type TokenKind = "spl" | "sol";

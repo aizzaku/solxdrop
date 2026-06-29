@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   MagnifyingGlass,
-  Robot,
-  ArrowCounterClockwise,
   ArrowSquareOut,
   ArrowRight,
 } from "@phosphor-icons/react";
@@ -12,6 +10,7 @@ import { useToast } from "@/components/ui/Toast";
 import { Spinner } from "@/components/ui/Spinner";
 import { fetchTopPosts, normalizeCashtag } from "@/lib/xapi";
 import { hasToken } from "@/lib/crypto";
+import { loadFetchResults, saveFetchResults } from "@/lib/leaderboardStore";
 import type { XPost } from "@/lib/types";
 
 interface Props {
@@ -28,9 +27,15 @@ function fmt(n: number): string {
 export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
   const { toast } = useToast();
   const [posts, setPosts] = useState<XPost[]>([]);
-  const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Restore the last fetch on mount so switching tabs / refreshing doesn't
+  // trigger another paid API call.
+  const mountCashtag = useRef(cashtag);
+  useEffect(() => {
+    setPosts(loadFetchResults(mountCashtag.current));
+  }, []);
 
   const handleFetch = async () => {
     if (!hasToken()) {
@@ -43,7 +48,7 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
     try {
       const result = await fetchTopPosts(cashtag);
       setPosts(result);
-      setExcluded(new Set());
+      saveFetchResults(cashtag, result);
       if (result.length === 0)
         toast("info", "No posts found for that cashtag in the last 7 days.");
     } catch (e) {
@@ -53,22 +58,13 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
     }
   };
 
-  const toggleExclude = (id: string) =>
-    setExcluded((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-
-  const kept = posts.filter((p) => !excluded.has(p.postId));
-
   const handleAdd = () => {
-    if (kept.length === 0) {
+    if (posts.length === 0) {
       toast("error", "No posts to add.");
       return;
     }
-    onAdd(kept.slice(0, 8));
-    toast("success", `Added ${Math.min(kept.length, 8)} post(s) to leaderboard.`);
+    onAdd(posts.slice(0, 10));
+    toast("success", `Added ${Math.min(posts.length, 10)} post(s) to leaderboard.`);
   };
 
   return (
@@ -105,8 +101,9 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
           </button>
         </div>
         <p className="mt-2 text-[11px] text-white/40">
-          Top posts by impressions over the last 7 days. Toggle off suspected
-          bot/fake posts before adding to the leaderboard.
+          Top 10 posts by impressions over the last 7 days. Results are saved
+          locally — switching tabs or refreshing won&apos;t re-spend API
+          credits.
         </p>
       </div>
 
@@ -120,87 +117,60 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
         <>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-white/55">
-              {kept.length} kept ·{" "}
-              <span className="text-white/35">{excluded.size} excluded</span>
+              {posts.length} post{posts.length === 1 ? "" : "s"} · ranked by
+              impressions
             </div>
             <button onClick={handleAdd} className="btn-neon !py-2">
-              Add top {Math.min(kept.length, 8)} to Leaderboard
+              Add to Leaderboard
               <ArrowRight size={15} weight="bold" />
             </button>
           </div>
 
           <div className="space-y-2">
-            {posts.map((p, i) => {
-              const isOut = excluded.has(p.postId);
-              return (
-                <div
-                  key={p.postId}
-                  style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
-                  className={`card animate-fade-up flex items-start gap-3 p-3 transition hover:border-white/20 ${
-                    isOut ? "opacity-40" : ""
-                  }`}
-                >
-                  <div className="flex w-8 shrink-0 flex-col items-center pt-1">
-                    <span className="font-mono text-sm font-bold text-neon">
-                      {i + 1}
+            {posts.map((p, i) => (
+              <div
+                key={p.postId}
+                style={{ animationDelay: `${Math.min(i, 10) * 40}ms` }}
+                className="card animate-fade-up flex items-start gap-3 p-3 transition hover:border-white/20"
+              >
+                <div className="flex w-8 shrink-0 flex-col items-center pt-1">
+                  <span className="font-mono text-sm font-bold text-neon">
+                    {i + 1}
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 text-sm">
+                    <span className="font-semibold text-white">
+                      @{p.username}
+                    </span>
+                    <span className="text-white/30">·</span>
+                    <span className="text-white/40">
+                      {new Date(p.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-2 text-sm">
-                      <span className="font-semibold text-white">
-                        @{p.username}
-                      </span>
-                      <span className="text-white/30">·</span>
-                      <span className="text-white/40">
-                        {new Date(p.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <p
-                      className={`mt-0.5 line-clamp-2 text-sm text-white/60 ${
-                        isOut ? "line-through" : ""
-                      }`}
+                  <p className="mt-0.5 line-clamp-2 text-sm text-white/60">
+                    {p.text}
+                  </p>
+                  <div className="mt-1.5 flex items-center gap-4 text-xs text-white/40">
+                    <span>
+                      <span className="font-mono font-semibold text-neon">
+                        {fmt(p.impressions)}
+                      </span>{" "}
+                      impressions
+                    </span>
+                    <span>{fmt(p.likes)} likes</span>
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-white/55 hover:text-neon hover:underline"
                     >
-                      {p.text}
-                    </p>
-                    <div className="mt-1.5 flex items-center gap-4 text-xs text-white/40">
-                      <span>
-                        <span className="font-mono font-semibold text-neon">
-                          {fmt(p.impressions)}
-                        </span>{" "}
-                        impressions
-                      </span>
-                      <span>{fmt(p.likes)} likes</span>
-                      <a
-                        href={p.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-white/55 hover:text-neon hover:underline"
-                      >
-                        View post <ArrowSquareOut size={12} weight="bold" />
-                      </a>
-                    </div>
+                      View post <ArrowSquareOut size={12} weight="bold" />
+                    </a>
                   </div>
-                  <button
-                    onClick={() => toggleExclude(p.postId)}
-                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition ${
-                      isOut
-                        ? "border-neon/50 text-neon hover:bg-neon/10"
-                        : "border-red-500/30 text-red-300 hover:bg-red-500/10"
-                    }`}
-                  >
-                    {isOut ? (
-                      <>
-                        <ArrowCounterClockwise size={13} weight="bold" /> Restore
-                      </>
-                    ) : (
-                      <>
-                        <Robot size={13} weight="bold" /> Mark bot
-                      </>
-                    )}
-                  </button>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </>
       )}

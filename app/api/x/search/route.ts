@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
     query: `$${cashtag} -is:retweet`,
     start_time: startTime,
     max_results: "100",
+    // relevancy surfaces the most-engaged posts; recency (default) would only
+    // return the newest tweets, missing high-impression posts in the window.
+    sort_order: "relevancy",
     "tweet.fields": "public_metrics,created_at,author_id",
     expansions: "author_id",
     "user.fields": "username",
@@ -103,7 +106,7 @@ export async function POST(req: NextRequest) {
       };
     })
     .sort((a, b) => b.impressions - a.impressions)
-    .slice(0, 50);
+    .slice(0, 10);
 
   return NextResponse.json({ posts });
 }
