@@ -39,6 +39,21 @@ airdrops, use a dedicated RPC (Helius, QuickNode, Triton).
 
 ---
 
+## Deploy to Vercel
+
+The app is a standard Next.js 15 project — Vercel auto-detects it, no config needed.
+
+1. Push to GitHub (already done) → in Vercel, **Add New… → Project → Import** this repo.
+2. Framework preset: **Next.js** (auto). Build command and output are auto-configured.
+3. **Environment variables are optional** — the app builds and runs with zero env vars (X token is entered in-browser; RPC falls back to public endpoints). Add these only when you're ready for mainnet airdrops:
+   - `NEXT_PUBLIC_RPC_MAINNET` — your dedicated mainnet RPC
+   - `NEXT_PUBLIC_RPC_DEVNET` — (optional) devnet RPC
+4. Deploy. The `/api/x/search` proxy runs as a serverless function automatically.
+
+> The X Bearer Token is **never** a Vercel env var — each user enters their own in the app, encrypted in their browser.
+
+---
+
 ## Securely adding your X Bearer Token
 
 The token is **encrypted in your browser** and never stored on a server.
