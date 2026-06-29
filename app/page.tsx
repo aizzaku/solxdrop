@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { XLogo, Trophy } from "@phosphor-icons/react";
 import { Header } from "@/components/Header";
 import { FetchTab } from "@/components/tabs/FetchTab";
 import { LeaderboardTab } from "@/components/tabs/LeaderboardTab";
@@ -50,9 +51,9 @@ export default function Home() {
     setAirdropOpen(true);
   };
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "fetch", label: "Fetch from X" },
-    { id: "leaderboard", label: "Leaderboard" },
+  const tabs: { id: Tab; label: string; Icon: typeof XLogo }[] = [
+    { id: "fetch", label: "Fetch from X", Icon: XLogo },
+    { id: "leaderboard", label: "Leaderboard", Icon: Trophy },
   ];
 
   return (
@@ -84,12 +85,13 @@ export default function Home() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`relative rounded-lg px-4 py-2 font-display text-xs font-semibold uppercase tracking-[0.14em] transition ${
+                className={`relative inline-flex items-center gap-2 rounded-lg px-4 py-2 font-display text-xs font-semibold uppercase tracking-[0.14em] transition ${
                   active
                     ? "border border-neon/40 bg-neon/10 text-neon shadow-[0_0_20px_-4px_rgba(57,255,20,0.5)]"
                     : "border border-white/10 bg-white/[0.02] text-white/45 hover:border-white/25 hover:text-white"
                 }`}
               >
+                <t.Icon size={15} weight="bold" />
                 {t.label}
               </button>
             );

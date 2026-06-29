@@ -1,6 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  UploadSimple,
+  Plus,
+  ArrowLineDown,
+  PaperPlaneTilt,
+  Trash,
+  ArrowSquareOut,
+} from "@phosphor-icons/react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { Modal } from "@/components/ui/Modal";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -241,16 +249,16 @@ export function AirdropModal({ open, onClose, initialRecipients }: Props) {
               }}
             />
             <button onClick={applyToAll} className="btn-ghost !py-1.5 !text-xs">
-              Copy 1st amount ↓
+              <ArrowLineDown size={13} weight="bold" /> Copy 1st amount
             </button>
             <button
               onClick={() => fileRef.current?.click()}
               className="btn-ghost !py-1.5 !text-xs"
             >
-              Import CSV
+              <UploadSimple size={13} weight="bold" /> Import CSV
             </button>
             <button onClick={addRow} className="btn-ghost !py-1.5 !text-xs">
-              + Row
+              <Plus size={13} weight="bold" /> Row
             </button>
           </div>
         </div>
@@ -304,9 +312,10 @@ export function AirdropModal({ open, onClose, initialRecipients }: Props) {
                           href={solscanTx(res.signature, config.explorerCluster)}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-1 inline-block text-[11px] text-neon hover:underline"
+                          className="mt-1 inline-flex items-center gap-1 text-[11px] text-neon hover:underline"
                         >
-                          {shortAddr(res.signature)} ↗
+                          {shortAddr(res.signature)}{" "}
+                          <ArrowSquareOut size={11} weight="bold" />
                         </a>
                       )}
                       {res?.error && (
@@ -338,7 +347,7 @@ export function AirdropModal({ open, onClose, initialRecipients }: Props) {
                         className="rounded p-1 text-white/30 transition hover:bg-white/10 hover:text-red-300 disabled:opacity-30"
                         aria-label="Remove row"
                       >
-                        ✕
+                        <Trash size={15} weight="bold" />
                       </button>
                     </td>
                   </tr>
@@ -392,7 +401,10 @@ export function AirdropModal({ open, onClose, initialRecipients }: Props) {
                   <Spinner className="h-4 w-4" /> Sending…
                 </>
               ) : (
-                `Send Airdrop (${validCount})`
+                <>
+                  <PaperPlaneTilt size={15} weight="bold" /> Send Airdrop (
+                  {validCount})
+                </>
               )}
             </button>
           </div>

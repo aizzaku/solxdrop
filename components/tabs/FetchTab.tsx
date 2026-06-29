@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import {
+  MagnifyingGlass,
+  Robot,
+  ArrowCounterClockwise,
+  ArrowSquareOut,
+  ArrowRight,
+} from "@phosphor-icons/react";
 import { useToast } from "@/components/ui/Toast";
 import { Spinner } from "@/components/ui/Spinner";
 import { fetchTopPosts, normalizeCashtag } from "@/lib/xapi";
@@ -91,7 +98,9 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
                 <Spinner className="h-4 w-4" /> Fetching…
               </>
             ) : (
-              "Fetch Top Posts"
+              <>
+                <MagnifyingGlass size={15} weight="bold" /> Fetch Top Posts
+              </>
             )}
           </button>
         </div>
@@ -115,7 +124,8 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
               <span className="text-white/35">{excluded.size} excluded</span>
             </div>
             <button onClick={handleAdd} className="btn-neon !py-2">
-              Add top {Math.min(kept.length, 8)} to Leaderboard →
+              Add top {Math.min(kept.length, 8)} to Leaderboard
+              <ArrowRight size={15} weight="bold" />
             </button>
           </div>
 
@@ -164,21 +174,29 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
                         href={p.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="text-white/55 hover:text-neon hover:underline"
+                        className="inline-flex items-center gap-1 text-white/55 hover:text-neon hover:underline"
                       >
-                        View post ↗
+                        View post <ArrowSquareOut size={12} weight="bold" />
                       </a>
                     </div>
                   </div>
                   <button
                     onClick={() => toggleExclude(p.postId)}
-                    className={`shrink-0 rounded-md border px-2.5 py-1 text-xs font-medium transition ${
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition ${
                       isOut
                         ? "border-neon/50 text-neon hover:bg-neon/10"
                         : "border-red-500/30 text-red-300 hover:bg-red-500/10"
                     }`}
                   >
-                    {isOut ? "Restore" : "Mark bot"}
+                    {isOut ? (
+                      <>
+                        <ArrowCounterClockwise size={13} weight="bold" /> Restore
+                      </>
+                    ) : (
+                      <>
+                        <Robot size={13} weight="bold" /> Mark bot
+                      </>
+                    )}
                   </button>
                 </div>
               );

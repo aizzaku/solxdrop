@@ -1,6 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import {
+  PaperPlaneTilt,
+  Prohibit,
+  ArrowCounterClockwise,
+  ArrowSquareOut,
+  Trash,
+} from "@phosphor-icons/react";
 import { useToast } from "@/components/ui/Toast";
 import type { LeaderboardEntry, Recipient } from "@/lib/types";
 
@@ -88,7 +95,8 @@ export function LeaderboardTab({
           disabled={selected.size === 0}
           className="btn-neon"
         >
-          Airdrop to Selected ({selected.size})
+          <PaperPlaneTilt size={15} weight="bold" /> Airdrop to Selected (
+          {selected.size})
         </button>
       </div>
 
@@ -163,9 +171,9 @@ export function LeaderboardTab({
                       href={e.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-white/55 hover:text-neon hover:underline"
+                      className="inline-flex items-center gap-1 text-white/55 hover:text-neon hover:underline"
                     >
-                      View ↗
+                      View <ArrowSquareOut size={12} weight="bold" />
                     </a>
                   </td>
                   <td className="px-3 py-2">
@@ -173,24 +181,33 @@ export function LeaderboardTab({
                       <button
                         onClick={() => openAirdrop([toRecipient(e)])}
                         disabled={e.excluded}
-                        className="rounded-md border border-neon/40 px-2.5 py-1 text-xs font-semibold text-neon transition hover:bg-neon/10 disabled:opacity-30"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-neon/40 px-2.5 py-1 text-xs font-semibold text-neon transition hover:bg-neon/10 disabled:opacity-30"
                       >
-                        Airdrop
+                        <PaperPlaneTilt size={13} weight="bold" /> Airdrop
                       </button>
                       <button
                         onClick={() =>
                           updateEntry(e.postId, { excluded: !e.excluded })
                         }
-                        className="rounded-md border border-white/15 px-2 py-1 text-xs text-white/55 transition hover:border-white/40 hover:text-white"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-white/15 px-2 py-1 text-xs text-white/55 transition hover:border-white/40 hover:text-white"
                       >
-                        {e.excluded ? "Restore" : "Exclude"}
+                        {e.excluded ? (
+                          <>
+                            <ArrowCounterClockwise size={13} weight="bold" />{" "}
+                            Restore
+                          </>
+                        ) : (
+                          <>
+                            <Prohibit size={13} weight="bold" /> Exclude
+                          </>
+                        )}
                       </button>
                       <button
                         onClick={() => removeEntry(e.postId)}
                         className="rounded p-1 text-white/30 transition hover:text-red-300"
                         aria-label="Remove"
                       >
-                        ✕
+                        <Trash size={15} weight="bold" />
                       </button>
                     </div>
                   </td>

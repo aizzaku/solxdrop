@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { X } from "@phosphor-icons/react";
 
 interface ModalProps {
   open: boolean;
@@ -59,14 +60,7 @@ export function Modal({
             className="rounded-md p-1 text-white/40 transition hover:bg-white/10 hover:text-white"
             aria-label="Close"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M6 6l12 12M18 6L6 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
+            <X size={20} weight="bold" />
           </button>
         </div>
         <div>{children}</div>

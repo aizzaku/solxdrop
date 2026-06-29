@@ -1,3 +1,6 @@
+"use client";
+
+import { CheckCircle, XCircle, Circle } from "@phosphor-icons/react";
 import type { TxPhase } from "@/lib/types";
 import { Spinner } from "./Spinner";
 
@@ -25,9 +28,9 @@ export function StatusBadge({ phase }: { phase: TxPhase }) {
       {(phase === "pending" || phase === "sent") && (
         <Spinner className="h-3 w-3" />
       )}
-      {phase === "confirmed" && (
-        <span className="h-1.5 w-1.5 rounded-full bg-neon" />
-      )}
+      {phase === "confirmed" && <CheckCircle size={13} weight="fill" />}
+      {phase === "failed" && <XCircle size={13} weight="fill" />}
+      {phase === "idle" && <Circle size={13} weight="bold" />}
       {LABELS[phase]}
     </span>
   );
