@@ -101,9 +101,10 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
           </button>
         </div>
         <p className="mt-2 text-[11px] text-white/40">
-          Top 10 posts by impressions (last 7 days), ranked from a relevancy
-          pull. Results are cached locally — switching tabs or refreshing
-          won&apos;t re-spend API credits.
+          Top 10 by engagement (likes + reposts) over the last 7 days. API
+          impression counts are unreliable, so ranking uses engagement. Results
+          are cached locally — switching tabs or refreshing won&apos;t re-spend
+          API credits.
         </p>
       </div>
 
@@ -118,7 +119,7 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-white/55">
               {posts.length} post{posts.length === 1 ? "" : "s"} · ranked by
-              impressions
+              engagement
             </div>
             <button onClick={handleAdd} className="btn-neon !py-2">
               Add to Leaderboard
@@ -154,11 +155,19 @@ export function FetchTab({ cashtag, setCashtag, onAdd, onNeedApiKey }: Props) {
                   <div className="mt-1.5 flex items-center gap-4 text-xs text-white/40">
                     <span>
                       <span className="font-mono font-semibold text-neon">
-                        {fmt(p.impressions)}
+                        {fmt(p.likes)}
                       </span>{" "}
-                      impressions
+                      likes
                     </span>
-                    <span>{fmt(p.likes)} likes</span>
+                    <span>
+                      <span className="font-mono font-semibold text-neon">
+                        {fmt(p.retweets)}
+                      </span>{" "}
+                      reposts
+                    </span>
+                    <span className="text-white/30">
+                      ~{fmt(p.impressions)} views
+                    </span>
                     <a
                       href={p.url}
                       target="_blank"

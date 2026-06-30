@@ -1,4 +1,5 @@
 import type { LeaderboardEntry, XPost } from "./types";
+import { engagementScore } from "./metrics";
 
 const PREFIX = "ansem:leaderboard:";
 const FETCH_PREFIX = "ansem:fetch:";
@@ -45,7 +46,7 @@ export function saveFetchResults(cashtag: string, posts: XPost[]): void {
   );
 }
 
-/** Merge fetched posts into existing entries, dedupe by postId, keep top 10 by impressions. */
+/** Merge fetched posts into existing entries, dedupe by postId, keep top 10 by engagement. */
 export function mergePosts(
   existing: LeaderboardEntry[],
   posts: XPost[]
@@ -59,6 +60,8 @@ export function mergePosts(
       postId: p.postId,
       username: p.username,
       impressions: p.impressions,
+      likes: p.likes,
+      retweets: p.retweets,
       createdAt: p.createdAt,
       url: p.url,
       text: p.text,
@@ -67,6 +70,6 @@ export function mergePosts(
   }
 
   return Array.from(byId.values())
-    .sort((a, b) => b.impressions - a.impressions)
+    .sort((a, b) => engagementScore(b) - engagementScore(a))
     .slice(0, MAX_ENTRIES);
 }

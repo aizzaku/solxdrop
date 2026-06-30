@@ -108,7 +108,7 @@ export function LeaderboardTab({
               </th>
               <th className="px-2 py-2.5 font-medium">#</th>
               <th className="px-3 py-2.5 font-medium">Username</th>
-              <th className="px-3 py-2.5 text-right font-medium">Impressions</th>
+              <th className="px-3 py-2.5 text-right font-medium">Likes / RTs</th>
               <th className="px-3 py-2.5 font-medium">Date</th>
               <th className="px-3 py-2.5 font-medium">Wallet Address</th>
               <th className="px-3 py-2.5 font-medium">Post</th>
@@ -140,7 +140,8 @@ export function LeaderboardTab({
                     @{e.username}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-white/80">
-                    {fmt(e.impressions)}
+                    {fmt(e.likes ?? 0)}{" "}
+                    <span className="text-white/30">/ {fmt(e.retweets ?? 0)}</span>
                   </td>
                   <td className="px-3 py-2 text-white/50">
                     {new Date(e.createdAt).toLocaleDateString()}

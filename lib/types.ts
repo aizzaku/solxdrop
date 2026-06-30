@@ -17,6 +17,8 @@ export interface LeaderboardEntry {
   postId: string;
   username: string;
   impressions: number;
+  likes: number;
+  retweets: number;
   createdAt: string;
   url: string;
   text: string;

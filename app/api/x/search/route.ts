@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { engagementScore } from "@/lib/metrics";
 
 export const runtime = "nodejs";
 
@@ -39,12 +40,12 @@ export async function POST(req: NextRequest) {
   }
 
   // Cost control: X bills ~$0.005 per post returned. The API cannot sort or
-  // filter by impressions (engagement operators are silently ignored), so the
-  // only lever is to pull fewer posts ranked by relevancy and keep the top 10.
-  // Tunable via X_SEARCH_MAX_RESULTS (10–100); default 25 ≈ $0.13/fetch.
+  // filter by popularity (engagement operators are silently ignored), so we
+  // pull a relevancy batch and rank by engagement client-side, keeping top 10.
+  // Tunable via X_SEARCH_MAX_RESULTS (10–100); default 50 ≈ $0.25/fetch.
   const maxResults = Math.min(
     100,
-    Math.max(10, parseInt(process.env.X_SEARCH_MAX_RESULTS || "25", 10) || 25)
+    Math.max(10, parseInt(process.env.X_SEARCH_MAX_RESULTS || "50", 10) || 50)
   );
 
   const startTime = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -114,7 +115,7 @@ export async function POST(req: NextRequest) {
         url: `https://x.com/${username}/status/${t.id}`,
       };
     })
-    .sort((a, b) => b.impressions - a.impressions)
+    .sort((a, b) => engagementScore(b) - engagementScore(a))
     .slice(0, 10);
 
   return NextResponse.json({ posts });
